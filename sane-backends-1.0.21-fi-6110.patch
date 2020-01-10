@@ -1,0 +1,29 @@
+diff -up sane-backends-1.0.21/backend/fujitsu.conf.in.fi-6110 sane-backends-1.0.21/backend/fujitsu.conf.in
+--- sane-backends-1.0.21/backend/fujitsu.conf.in.fi-6110	2017-01-30 16:45:11.132398361 +0100
++++ sane-backends-1.0.21/backend/fujitsu.conf.in	2017-01-30 16:46:18.069699663 +0100
+@@ -74,6 +74,9 @@ usb 0x04c5 0x1135
+ #fi-5530C2
+ usb 0x04c5 0x114a
+ 
++#fi-6110
++usb 0x04c5 0x11fc
++
+ #fi-6140
+ usb 0x04c5 0x114d
+ 
+diff -up sane-backends-1.0.21/doc/descriptions/fujitsu.desc.fi-6110 sane-backends-1.0.21/doc/descriptions/fujitsu.desc
+--- sane-backends-1.0.21/doc/descriptions/fujitsu.desc.fi-6110	2010-04-05 15:18:05.000000000 +0200
++++ sane-backends-1.0.21/doc/descriptions/fujitsu.desc	2017-01-30 14:24:10.990550723 +0100
+@@ -138,6 +138,12 @@
+ :status :untested
+ :comment "small, current, integrated touchscreen and keyboard"
+ 
++:model "fi-6110"
++:interface "USB"
++:status :complete
++:usbid "0x04c5" "0x11fc"
++:comment "small, current"
++
+ :model "fi-6130"
+ :interface "USB"
+ :status :complete

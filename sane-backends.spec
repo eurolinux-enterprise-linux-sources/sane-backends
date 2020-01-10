@@ -1,16 +1,16 @@
 Summary: Scanner access software
 Name: sane-backends
 Version: 1.0.21
-Release: 3%{?dist}
+Release: 5%{?dist}
 # lib/ is LGPLv2+, backends are GPLv2+ with exceptions
 # Tools are GPLv2+, docs are public domain
 # see LICENSE for details
 License: GPLv2+ and GPLv2+ with exceptions and Public Domain
 Group: System Environment/Libraries
-Source0: ftp://ftp.sane-project.org/pub/sane/%{name}-%{version}/%{name}-%{version}.tar.gz
+Source0: https://alioth.debian.org/frs/download.php/latestfile/176/sane-backends-%{version}.tar.gz
 Source1: sane.png
 # upstream forgot some files in the 1.0.21 tarball:
-Patch0: ftp://ftp.sane-project.org/pub/sane/%{name}-%{version}/%{name}-%{version}-i18n.patch
+Patch0: https://alioth.debian.org/frs/download.php/latestfile/176/sane-backends-%{version}-i18n.patch
 Patch1: sane-backends-1.0.21-pkgconfig.patch
 Patch2: sane-backends-1.0.20-open-macro.patch
 Patch3: sane-backends-1.0.21-udev.patch
@@ -18,6 +18,7 @@ Patch4: sane-backends-1.0.21-man-encoding.patch
 Patch5: sane-backends-1.0.21-epson-expression800.patch
 Patch6: sane-backends-1.0.20-lockdir.patch
 Patch7: sane-backends-1.0.21-docs-utf8.patch
+Patch8: sane-backends-1.0.21-fi-6110.patch
 # may need rebuilding if one of the above changes:
 Patch100: sane-backends-1.0.21-automake.patch
 URL: http://www.sane-project.org
@@ -87,6 +88,7 @@ want to access digital cameras.
 %patch5 -p1 -b .epson-expression800
 %patch6 -p1 -b .lockdir
 %patch7 -p1 -b .docs-utf8
+%patch8 -p1 -b .fi-6110
 %patch100 -p1 -b .automake
 
 %build
@@ -162,6 +164,14 @@ rm -rf %{buildroot}
 %{_libdir}/pkgconfig/sane-backends.pc
 
 %changelog
+* Mon Jan 30 2017 Zdenek Dohnal <zdohnal@redhat.com> - 1.0.21-5
+- added USB ID for Fujitsu fi-6110 device (#987890)
+
+* Mon Oct 31 2016 Nils Philippsen <nils@redhat.com> - 1.0.21-4
+- update udev rules for Fujitsu fi-6110 device (#987890)
+- fix bogus changelog dates
+- fix source URLs
+
 * Fri Jun 25 2010 Nils Philippsen <nils@redhat.com> - 1.0.21-3
 - build with -fno-strict-aliasing
 - use PIC/PIE because SANE-enabled software is likely to deal with data coming
@@ -203,7 +213,7 @@ rm -rf %{buildroot}
 - ship adapted udev rules from F-12 on (#512516)
 - don't require pam anymore
 
-* Fri Aug 31 2009 Nils Philippsen <nils@redhat.com> - 1.0.20-7
+* Mon Aug 31 2009 Nils Philippsen <nils@redhat.com> - 1.0.20-7
 - fix --enable-rpath
 
 * Mon Aug 03 2009 Nils Philippsen <nils@redhat.com> - 1.0.20-6
@@ -408,7 +418,7 @@ rm -rf %{buildroot}
 - buildrequire automake, autoconf, libtool (#178596)
 - don't require /sbin/ldconfig, /bin/mktemp, /bin/grep, /bin/cat, /bin/rm
 
-* Thu Feb 22 2006 Nils Philippsen <nphilipp@redhat.com> - 1.0.17-4
+* Wed Feb 22 2006 Nils Philippsen <nphilipp@redhat.com> - 1.0.17-4
 - split off generated documentation into separate subpackage to avoid conflicts
   on multilib systems
 
@@ -616,7 +626,7 @@ rm -rf %{buildroot}
 * Mon Mar  4 2002 Tim Powers <timp@redhat.com> 1.0.7-5
 - bump release number, wasn't bumped last time
 
-* Mon Mar  3 2002 Tim Waugh <twaugh@redhat.com> 1.0.7-4
+* Mon Mar  4 2002 Tim Waugh <twaugh@redhat.com> 1.0.7-4
 - Update sparc patch (Tom "spot" Callaway).
 
 * Thu Feb 21 2002 Tim Waugh <twaugh@redhat.com> 1.0.7-3
@@ -701,7 +711,7 @@ rm -rf %{buildroot}
 * Thu Oct 26 2000 Bill Nottingham <notting@redhat.com>
 - fix provides for ia64/sparc64
 
-* Thu Aug 29 2000 Trond Eivind Glomsrød <teg@redhat.com>
+* Tue Aug 29 2000 Trond Eivind Glomsrød <teg@redhat.com>
 - don't include xscanimage desktop entry - it's a gimp
   plugin. Doh. (part of #17076)
 - add tetex-latex as a build requirement
