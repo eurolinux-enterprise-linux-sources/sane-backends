@@ -1,4 +1,4 @@
-#if !0%%{?fedora}%%{?rhel} || 0%%{?fedora} >= 17 || 0%%{?rhel} >= 7
+#if !0%{?fedora}%{?rhel} || 0%{?fedora} >= 17 || 0%{?rhel} >= 7
 #global needs_multilib_quirk 0
 #else
 # let -devel require drivers to make them available as multilib
@@ -37,7 +37,7 @@
 Summary: Scanner access software
 Name: sane-backends
 Version: 1.0.24
-Release: 12%{?dist}
+Release: 6%{?dist}
 # lib/ is LGPLv2+, backends are GPLv2+ with exceptions
 # Tools are GPLv2+, docs are public domain
 # see LICENSE for details
@@ -46,9 +46,6 @@ Group: System Environment/Libraries
 # Alioth Download URLs are amazing.
 Source0: https://alioth.debian.org/frs/download.php/latestfile/176/sane-backends-%{version}.tar.gz
 Source1: sane.png
-Source2: saned.socket
-Source3: saned@.service.in
-Source4: 66-saned.rules
 
 # Fedora-specific, not generally applicable:
 Patch0: sane-backends-1.0.24-udev.patch
@@ -76,14 +73,6 @@ Patch5: sane-backends-1.0.24-pixma_bjnp-crash.patch
 # Upstream commit dc76e7cce464f04e46aab2bb0c269b4742161c59
 # Upstream commit d835d9d565118d52c2339c2e79890f57d0616077
 Patch6: sane-backends-1.0.24-static-code-check.patch
-# Upstream commit 758731489d0d58bab6e4b70db9556038c9f4bb67
-Patch7: sane-backends-1.0.24-scsi-permissions.patch
-# Upstream commit 56398ead607d8bcb9deef7ca3f4d7f78478f1b4c
-# Upstream commit 1207ce5a40664c04b934bd0a6babbc1575361356
-# Upstream commit 014b45d920f1fb630e1a31bb01f1da02ea2a6a87
-Patch8: sane-backends-1.0.24-usb3-xhci.patch
-# RFE: please include the systemd's config files (bug #1512252)
-Patch9: sane-backends-saned-manpage.patch
 
 URL: http://www.sane-project.org
 
@@ -99,13 +88,8 @@ BuildRequires: libtiff-devel
 BuildRequires: libv4l-devel
 BuildRequires: gettext
 BuildRequires: gphoto2-devel
-BuildRequires: systemd-devel
-BuildRequires: systemd
 Requires: systemd >= 196
 Requires: sane-backends-libs%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: acl
-Requires(pre): shadow-utils
-%{?systemd_requires}
 # Don't drag around obsoletes forever
 %if 0%{?fedora}%{?rhel} && (0%{?fedora} < 25 || 0%{?rhel} < 8)
 Obsoletes: sane-backends < 1.0.23-10
@@ -204,9 +188,6 @@ This package contains backend drivers to access digital cameras through SANE.
 %patch4 -p1 -b .hwdb
 %patch5 -p1 -b .pixma_bjnp-crash
 %patch6 -p1 -b .static-code-check
-%patch7 -p1 -b .scsi-permissions
-%patch8 -p1 -b .usb3-xhci
-%patch9 -p1 -b .saned-manpage
 
 %build
 CFLAGS="%optflags -fno-strict-aliasing"
@@ -248,7 +229,6 @@ mkdir -p %{buildroot}%{udevrulesdir}
 mkdir -p %{buildroot}%{udevhwdbdir}
 install -m 0644 tools/udev/sane-backends.rules %{buildroot}%{udevrulesdir}/65-sane-backends.rules
 install -m 0644 tools/udev/sane-backends.hwdb %{buildroot}%{udevhwdbdir}/20-sane-backends.hwdb
-install -m 0644 %{SOURCE4} %{buildroot}%{udevrulesdir}/66-saned.rules
 
 mkdir -p %{buildroot}%{_libdir}/pkgconfig
 install -m 0644 tools/sane-backends.pc %{buildroot}%{_libdir}/pkgconfig/
@@ -273,30 +253,13 @@ for f in *; do
 done
 popd
 
-install -m 755 -d %{buildroot}%{_unitdir}
-install -m 644 %{SOURCE2} %{buildroot}%{_unitdir}
-sed 's|@CONFIGDIR@|%{_sysconfdir}/sane.d|g' < %{SOURCE3} > saned@.service
-install -m 644 saned@.service %{buildroot}%{_unitdir}
-
 %find_lang %name
-
-%pre
-getent group saned >/dev/null || groupadd -r saned
-getent passwd saned >/dev/null || \
-    useradd -r -g saned -d %{_datadir}/sane -s /sbin/nologin \
-    -c "SANE scanner daemon user" saned
-exit 0
 
 %post
 udevadm hwdb --update >/dev/null 2>&1 || :
-%systemd_post saned.socket
-
-%preun
-%systemd_preun saned.socket
 
 %postun
 udevadm hwdb --update >/dev/null 2>&1 || :
-%systemd_postun saned.socket
 
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
@@ -308,10 +271,7 @@ udevadm hwdb --update >/dev/null 2>&1 || :
 %dir /etc/sane.d/dll.d
 %config(noreplace) /etc/sane.d/*.conf
 %{udevrulesdir}/65-sane-backends.rules
-%{udevrulesdir}/66-saned.rules
 %{udevhwdbdir}/20-sane-backends.hwdb
-%{_unitdir}/saned.socket
-%{_unitdir}/saned@.service
 %{_datadir}/pixmaps/sane.png
 
 %{_bindir}/sane-find-scanner
@@ -322,7 +282,6 @@ udevadm hwdb --update >/dev/null 2>&1 || :
 %{_mandir}/*/*
 
 %dir %{_libdir}/sane
-%dir %{_datadir}/sane
 
 %files doc
 %defattr(-, root, root)
@@ -350,27 +309,6 @@ udevadm hwdb --update >/dev/null 2>&1 || :
 %{_libdir}/sane/*gphoto2.so*
 
 %changelog
-* Fri May 04 2018 Zdenek Dohnal <zdohnal@redhat.com> - 1.0.24-12
-- 1554406 - saned doesn't have permissions to write on usb port
-
-* Wed Nov 22 2017 Zdenek Dohnal <zdohnal@redhat.com> - 1.0.24-12
-- 1512252 - RFE: please include the systemd's config files
-
-* Tue Oct 10 2017 Zdenek Dohnal <zdohnal@redhat.com> - 1.0.24-11
-- 1500219 - rebuild against new libgphoto2
-
-* Mon Sep 25 2017 Zdenek Dohnal <zdohnal@redhat.com> - 1.0.24-10
-- 1458903 - [Patch] Lack of USB3 xhci patch makes SANE quite unusable with USB3 hardware
-
-* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.0.24-9
-- Mass rebuild 2014-01-24
-
-* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.0.24-8
-- Mass rebuild 2013-12-27
-
-* Wed Nov 20 2013 Nils Philippsen <nils@redhat.com> - 1.0.24-7
-- set correct permissions for SCSI devices (#1028549)
-
 * Thu Nov 07 2013 Nils Philippsen <nils@redhat.com> - 1.0.24-6
 - epson: don't leak memory if realloc() fails
 
