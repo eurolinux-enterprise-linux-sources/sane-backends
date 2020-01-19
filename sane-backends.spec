@@ -37,7 +37,7 @@
 Summary: Scanner access software
 Name: sane-backends
 Version: 1.0.24
-Release: 6%{?dist}
+Release: 9%{?dist}
 # lib/ is LGPLv2+, backends are GPLv2+ with exceptions
 # Tools are GPLv2+, docs are public domain
 # see LICENSE for details
@@ -73,6 +73,8 @@ Patch5: sane-backends-1.0.24-pixma_bjnp-crash.patch
 # Upstream commit dc76e7cce464f04e46aab2bb0c269b4742161c59
 # Upstream commit d835d9d565118d52c2339c2e79890f57d0616077
 Patch6: sane-backends-1.0.24-static-code-check.patch
+# Upstream commit 758731489d0d58bab6e4b70db9556038c9f4bb67
+Patch7: sane-backends-1.0.24-scsi-permissions.patch
 
 URL: http://www.sane-project.org
 
@@ -188,6 +190,7 @@ This package contains backend drivers to access digital cameras through SANE.
 %patch4 -p1 -b .hwdb
 %patch5 -p1 -b .pixma_bjnp-crash
 %patch6 -p1 -b .static-code-check
+%patch7 -p1 -b .scsi-permissions
 
 %build
 CFLAGS="%optflags -fno-strict-aliasing"
@@ -309,6 +312,15 @@ udevadm hwdb --update >/dev/null 2>&1 || :
 %{_libdir}/sane/*gphoto2.so*
 
 %changelog
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.0.24-9
+- Mass rebuild 2014-01-24
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.0.24-8
+- Mass rebuild 2013-12-27
+
+* Wed Nov 20 2013 Nils Philippsen <nils@redhat.com> - 1.0.24-7
+- set correct permissions for SCSI devices (#1028549)
+
 * Thu Nov 07 2013 Nils Philippsen <nils@redhat.com> - 1.0.24-6
 - epson: don't leak memory if realloc() fails
 
