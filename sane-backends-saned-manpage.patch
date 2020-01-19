@@ -1,0 +1,24 @@
+diff -up sane-backends-1.0.24/doc/saned.man.saned-manpage sane-backends-1.0.24/doc/saned.man
+--- sane-backends-1.0.24/doc/saned.man.saned-manpage	2017-11-22 15:53:48.268950048 +0100
++++ sane-backends-1.0.24/doc/saned.man	2017-11-22 16:19:08.411273673 +0100
+@@ -274,6 +274,20 @@ systemd allows debugging output from bac
+ .B SANE_DEBUG_<backend_name> 
+ to be captured. With the service unit as described above, the debugging output is 
+ forwarded to the system log.
++
++After creating unit files run as root:
++.PP
++.RS
++systemctl start saned.socket
++.RE
++.PP
++to start saned. If you want to have saned.socket running after startup, run as
++root: 
++.PP
++.RS
++systemctl enable saned.socket
++.RE
++.PP
+ .SH FILES
+ .TP
+ .I /etc/hosts.equiv
